@@ -66,7 +66,7 @@ const developmentErrors = (err, req, res, next) => {
     res,
     status || HttpStatus.INTERNAL_SERVER_ERROR,
     errorDetails,
-    message,
+    message
   );
 };
 
@@ -88,7 +88,7 @@ const productionErrors = (err, req, res, next) => {
     res,
     status || HttpStatus.INTERNAL_SERVER_ERROR,
     errorDetails,
-    message,
+    message
   );
 };
 

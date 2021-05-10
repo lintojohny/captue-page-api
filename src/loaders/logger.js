@@ -9,9 +9,9 @@ if (environment !== 'development') {
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.cli(),
-        winston.format.splat(),
+        winston.format.splat()
       ),
-    }),
+    })
   );
 }
 
@@ -24,7 +24,7 @@ const Logger = winston.createLogger({
     }),
     winston.format.errors({stack: true}),
     winston.format.splat(),
-    winston.format.json(),
+    winston.format.json()
   ),
   transports,
 });

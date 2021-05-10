@@ -30,23 +30,13 @@ async function captureScreen(req, res) {
     throw new ErrorHandler(BAD_REQUEST, 'Enter valid url');
   }
   (async () => {
-    const image = await webshot(
-      remoteUrl.trim(),
-      imageName.trim(),
-      options,
-      function(err) {
-        if (err) {
-          throw new ErrorHandler(METHOD_FAILURE, 'Image capture having issue');
-        }
+    await webshot(remoteUrl.trim(), imageName.trim(), options, function(err) {
+      if (err) {
+        throw new ErrorHandler(METHOD_FAILURE, 'Image capture having issue');
+      }
 
-        res.setHeader(
-          'Content-disposition',
-          `attachment;filename=${imageName.trim()}`,
-        );
-        res.set('Content-Type', 'image/jpg');
-        res.status(OK).download(image);
-      },
-    );
+      res.status(OK).download(imageName.trim());
+    });
   })();
 
   // success(req, res, OK, {}, 'Screen Captured');
