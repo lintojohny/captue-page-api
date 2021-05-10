@@ -1,5 +1,6 @@
 const {OK, BAD_REQUEST, METHOD_FAILURE} = require('http-status-codes');
 const webshot = require('webshot');
+const fs = require('fs');
 const {success} = require('../../helpers/response');
 const {ErrorHandler} = require('../../errorHandlers');
 
@@ -11,14 +12,20 @@ function urlValidator(url) {
 
 async function captureScreen(req, res) {
   /* capture screen */
-  const {remoteUrl, imageName, screenSize = {}, shotSize = {}} = req.body;
+  const {
+    remoteUrl,
+    imageName,
+    screenSize = {},
+    shotSize = {},
+    format,
+  } = req.body;
 
-  console.log({remoteUrl, imageName, screenSize, shotSize});
+  console.log({remoteUrl, imageName, screenSize, shotSize, format});
   const options = {
     stramType: 'png',
     screenSize: {
-      width: screenSize.width || 'all',
-      height: screenSize.height || 'all',
+      width: screenSize.width || 1200,
+      height: screenSize.height || 1200,
     },
     shotSize: {
       width: shotSize.width || 'all',
@@ -32,10 +39,30 @@ async function captureScreen(req, res) {
   (async () => {
     await webshot(remoteUrl.trim(), imageName.trim(), options, function(err) {
       if (err) {
-        throw new ErrorHandler(METHOD_FAILURE, 'Image capture having issue');
+        throw new ErrorHandler(
+          METHOD_FAILURE,
+          'Image capture having issue',
+          err
+        );
       }
+      let contentType;
 
-      res.status(OK).download(imageName.trim());
+      if (format === 'PNG') {
+        contentType = `type=image/png,fileName=${imageName.trim()}`;
+      } else if (format === 'JPG') {
+        contentType = `type=image/jpg,fileName=${imageName.trim()}`;
+      } else {
+        contentType = `type=application/pdf,fileName=${imageName.trim()}`;
+      }
+      res.setHeader(
+        'Content-disposition',
+        `attachment;fileName=${imageName.trim()}`
+      );
+      const s = fs.createReadStream(imageName.trim());
+      s.on('open', function() {
+        res.set('Content-Type', contentType);
+        s.pipe(res);
+      });
     });
   })();
 
